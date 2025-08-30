@@ -1,0 +1,26 @@
+﻿@using ChatApp.Core.IDataService
+
+@model ChatRoom_DTO
+
+@{
+    var activeId = ViewData["ActiveRoomId"] as int?;
+    var isActive = activeId == Model.ChatRoomId;
+    var lastMessageText = "Hello world"; // Placeholder
+    var lastMessageTime = "Yesterday"; // Placeholder
+    var unreadCount = 1; // Placeholder
+}
+
+<a class="text-decoration-none whatsapp-chat-item @(isActive ? "active" : "") d-flex align-items-center gap-3 p-3 border-bottom border-secondary" href="@Url.Action("Index", "Chat", new { roomId = Model.ChatRoomId })">
+    <div class="whatsapp-avatar">@Model.EnglishChatRoomName?.Trim().Substring(0, 1).ToUpperInvariant()</div>
+    <div class="flex-grow-1">
+        <div class="fw-bold text-white">@Model.EnglishChatRoomName</div>
+        <div class="small text-white-50 text-truncate">@lastMessageText</div>
+    </div>
+    <div class="d-flex flex-column align-items-end text-white-50 small">
+        <span>@lastMessageTime</span>
+        @if (unreadCount > 0)
+        {
+            <span class="badge bg-primary rounded-pill mt-1">@unreadCount</span>
+        }
+    </div>
+</a>

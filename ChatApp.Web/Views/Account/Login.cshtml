@@ -1,0 +1,111 @@
+﻿@model ChatApp.Web.ViewModels.LoginViewModel
+@{
+    ViewData["Title"] = "Log in - Smart School Chat";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Custom Styles for Animation -->
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        
+        @@keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in-down {
+            animation: fadeInDown 0.8s ease-out forwards;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+
+    <!-- Decorative Background Blobs -->
+    <div class="absolute top-0 -left-4 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse"></div>
+    <div class="absolute top-0 -right-4 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse animation-delay-2000"></div>
+    <div class="absolute bottom-0 -left-20 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse animation-delay-4000"></div>
+
+    <!-- Main Content Card -->
+    <div class="w-full max-w-md text-center bg-white/70 backdrop-blur-xl rounded-2xl shadow-2xl p-8 sm:p-10 animate-fade-in-down z-10">
+
+        <!-- App Logo & Name -->
+        <div class="flex items-center justify-center gap-3 mb-4">
+            <svg class="w-10 h-10 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            </svg>
+            <h1 class="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 tracking-tight">
+                Smart School Chat
+            </h1>
+        </div>
+        
+        <p class="text-gray-600 mb-8 text-md">
+            Sign in to your account to continue
+        </p>
+
+        <!-- Login Form -->
+        <form asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="text-left">
+
+            <!-- Validation Summary for login errors -->
+            <div asp-validation-summary="ModelOnly" class="text-red-600 text-sm bg-red-100 p-3 rounded-lg mb-4 text-center font-medium"></div>
+
+            <div class="mb-4">
+                <label asp-for="UserName" class="block text-gray-700 text-sm font-semibold mb-2"></label>
+                <input asp-for="UserName" class="appearance-none bg-white/80 border border-gray-300 rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="Enter your username" />
+                <span asp-validation-for="UserName" class="text-red-500 text-xs italic mt-1"></span>
+            </div>
+
+            <div class="mb-5">
+                <label asp-for="Password" class="block text-gray-700 text-sm font-semibold mb-2"></label>
+                <input asp-for="Password" class="appearance-none bg-white/80 border border-gray-300 rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 transition" placeholder="******************" />
+                <span asp-validation-for="Password" class="text-red-500 text-xs italic mt-1"></span>
+            </div>
+
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center">
+                    <input asp-for="RememberMe" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
+                    <label asp-for="RememberMe" class="ml-2 block text-sm text-gray-800">
+                        @Html.DisplayNameFor(m => m.RememberMe)
+                    </label>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-center">
+                <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-xl hover:bg-blue-700 focus:outline-none focus:shadow-outline transition-all duration-300 shadow-lg hover:shadow-blue-300 transform hover:scale-105">
+                    Sign In
+                </button>
+            </div>
+        </form>
+
+        <!-- Footer -->
+        <footer class="mt-10 text-gray-500 text-sm text-center">
+             © @DateTime.Now.Year Smart School Chat — Powered by Zlious Tech
+        </footer>
+    </div>
+
+</body>
+</html>

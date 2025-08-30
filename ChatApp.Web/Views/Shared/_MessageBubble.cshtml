@@ -1,0 +1,26 @@
+﻿@model ChatRoomMessage_DTO
+@using System.Security.Claims
+@using ChatApp.Core.IDataService
+
+@{
+    var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "";
+    var mine = (Model.FromUserId.ToString() ?? "") == currentUserId;
+    var timestamp = Model.Timestamp.ToLocalTime();
+
+    // Simulating message statuses
+    var isDelivered = true;
+    var isRead = true;
+}
+
+<div class="d-flex mb-2 @(mine ? "justify-content-end" : "justify-content-start")" data-ts="@Model.Timestamp.ToUniversalTime().Ticks">
+    <div class="whatsapp-bubble p-2 d-flex flex-column rounded @(mine ? "whatsapp-bubble-out" : "whatsapp-bubble-in")" dir="auto">
+        <div class="text-white">@Model.Content</div>
+        <div class="d-flex align-items-end justify-content-end gap-2 mt-1">
+            <span class="text-white-50 small">@timestamp.ToString("h:mm tt")</span>
+            @if (mine)
+            {
+                <i class="bi bi-check2-all small @(isRead ? "text-info" : "text-white-50")"></i>
+            }
+        </div>
+    </div>
+</div>

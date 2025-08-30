@@ -1,0 +1,24 @@
+﻿<div class="card mt-4">
+    <div class="card-header">Add all users by role</div>
+    <div class="card-body">
+        <form asp-action="AddRoleMembers" method="post" class="row g-2 align-items-center">
+            <input type="hidden" name="roomId" value="@Model.RoomId" />
+            <div class="col-auto">
+                <select name="role" class="form-select" required>
+                    <option value="">Select role…</option>
+                    @foreach (var r in Model.Roles)
+                    {
+                        <option value="@r">@r</option>
+                    }
+                </select>
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-primary" type="submit">Add all</button>
+            </div>
+            @Html.AntiForgeryToken()
+        </form>
+        <small class="text-muted d-block mt-2">
+            This will add users with the selected role who are not already members. It won’t remove anyone.
+        </small>
+    </div>
+</div>

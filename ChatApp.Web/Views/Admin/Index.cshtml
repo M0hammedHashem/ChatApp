@@ -1,0 +1,415 @@
+﻿@using ChatApp.Web.ViewModels
+@using System.Security.Claims
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@model AdminChatRoomViewModel
+@{
+    ViewData["Title"] = "Admin Dashboard";
+    Layout = null;
+    var schoolIdClaim = HttpContextAccessor.HttpContext.User.FindFirst("SchoolId");
+    var isSchoolAdmin = schoolIdClaim != null;
+    var adminSchoolId = isSchoolAdmin ? int.Parse(schoolIdClaim.Value) : 0;
+}
+
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Smart School Chat</title>
+
+    <!-- Scripts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Fonts and Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Custom Styles -->
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.7s ease-out forwards;
+        }
+
+        .tab-button {
+            padding: 0.75rem 1rem;
+            border-bottom: 3px solid transparent;
+            font-weight: 600;
+            color: #4b5563; /* gray-600 */
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab-active {
+            border-bottom-color: #3b82f6; /* blue-500 */
+            color: #1e3a8a; /* blue-900 */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4 relative overflow-hidden font-sans">
+
+    <!-- Decorative Background Blobs -->
+    <div class="absolute top-0 -left-4 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse"></div>
+    <div class="absolute top-0 -right-4 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse animation-delay-2000"></div>
+    <div class="absolute bottom-0 -left-20 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse animation-delay-4000"></div>
+
+    <!-- Main Admin Container -->
+    <div class="w-full max-w-5xl bg-white/70 backdrop-blur-xl rounded-2xl shadow-2xl z-10 animate-fade-in">
+
+        <!-- Header -->
+        <div class="flex justify-between items-center p-6 border-b border-gray-200/80">
+            <div class="flex items-center space-x-3">
+                <i class="fas fa-user-shield text-3xl text-blue-600"></i>
+                <h1 class="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
+            </div>
+            <form asp-controller="Account" asp-action="Logout" method="post">
+                <button type="submit" class="flex items-center justify-center gap-2 px-4 py-2 rounded-xl border-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition-all duration-300 font-semibold transform hover:scale-105">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- Global Messages -->
+        <div class="p-6">
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-r-lg" role="alert">
+                    <p class="font-bold">Success</p>
+                    <p>@TempData["SuccessMessage"]</p>
+                </div>
+            }
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded-r-lg" role="alert">
+                    <p class="font-bold">Error</p>
+                    <p>@TempData["ErrorMessage"]</p>
+                </div>
+            }
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="px-6 border-b border-gray-200/80">
+            <nav class="flex space-x-2" aria-label="Tabs">
+                <button class="tab-button tab-active" data-target="school-tab">School</button>
+                <button class="tab-button" data-target="curriculum-tab">Curriculum</button>
+                <button class="tab-button" data-target="class-tab">Class</button>
+                <button class="tab-button" data-target="section-tab">Section</button>
+                <button class="tab-button" data-target="subject-tab">Subject</button>
+                <button class="tab-button" data-target="users-tab">Users</button>
+            </nav>
+        </div>
+
+        <!-- Tab Content Area -->
+        <div class="p-6">
+            <div id="school-tab" class="tab-content">
+                @await Html.PartialAsync("_CreateSchoolRoomPartial", Model)
+            </div>
+            <div id="curriculum-tab" class="tab-content hidden">
+                @await Html.PartialAsync("_CreateCurriculumRoomPartial", Model)
+            </div>
+            <div id="class-tab" class="tab-content hidden">
+                @await Html.PartialAsync("_CreateClassRoomPartial", Model)
+            </div>
+            <div id="section-tab" class="tab-content hidden">
+                @await Html.PartialAsync("_CreateSectionRoomPartial", Model)
+            </div>
+            <div id="subject-tab" class="tab-content hidden">
+                @await Html.PartialAsync("_CreateSubjectRoomPartial", Model)
+            </div>
+            <div id="users-tab" class="tab-content hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Left Column: Sync Users -->
+                    <div class="space-y-6 p-6 border border-gray-200 rounded-lg">
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-800">Sync Users</h3>
+                            <p class="text-gray-500 mt-1">Check for missing users first, then create their profiles. This is the recommended way to sync.</p>
+                        </div>
+
+                        <button id="check-missing-users-btn" type="button" class="w-full flex items-center justify-center gap-2 px-8 py-3 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 transition-all duration-300 font-semibold shadow-lg hover:shadow-indigo-300 transform hover:scale-105">
+                            <i class="fas fa-search"></i> 1. Check for Missing Users
+                        </button>
+
+                        <div id="user-check-result" class="mt-6 text-center hidden">
+                            <!-- This will be populated by JavaScript -->
+                        </div>
+
+                        <form id="create-users-form" class="hidden">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="w-full flex items-center justify-center gap-2 px-8 py-3 rounded-xl bg-green-600 text-white hover:bg-green-700 transition-all duration-300 font-semibold shadow-lg hover:shadow-green-300 transform hover:scale-105">
+                                <i class="fas fa-plus-circle"></i> 2. Create Missing Chat Users
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Right Column: First-Time Setup -->
+                    <div class="space-y-6 p-6 bg-yellow-50 border border-yellow-300 rounded-lg">
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-800">First-Time Setup</h3>
+                            <p class="text-gray-500 mt-1">If this is the first time setting up the chat, this will create profiles for all users in the system at once.</p>
+                        </div>
+
+                        <form id="initial-create-users-form">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="w-full flex items-center justify-center gap-2 px-8 py-3 rounded-xl bg-yellow-500 text-white hover:bg-yellow-600 transition-all duration-300 font-semibold shadow-lg hover:shadow-yellow-300 transform hover:scale-105">
+                                <i class="fas fa-users-cog"></i> Initialize All Users
+                            </button>
+                        </form>
+
+                        <div id="initial-user-create-result" class="mt-6 text-center hidden">
+                            <!-- Result for this action -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            // --- Tab Switching Logic ---
+            $('.tab-button').on('click', function () {
+                $('.tab-button').removeClass('tab-active');
+                $(this).addClass('tab-active');
+                $('.tab-content').addClass('hidden');
+                $('#' + $(this).data('target')).removeClass('hidden');
+            });
+
+            // --- Check All Users Logic ---
+            $(document).on('change', '.include-all-checkbox', function () {
+                var isChecked = $(this).is(':checked');
+                $(this).closest('form').find('.member-type-checkbox').prop('checked', isChecked);
+            });
+
+            $(document).on('change', '.member-type-checkbox', function () {
+                var form = $(this).closest('form');
+                if (!$(this).is(':checked')) {
+                    form.find('.include-all-checkbox').prop('checked', false);
+                } else {
+                    var totalCheckboxes = form.find('.member-type-checkbox').length;
+                    var checkedCheckboxes = form.find('.member-type-checkbox:checked').length;
+                    if (totalCheckboxes === checkedCheckboxes) {
+                        form.find('.include-all-checkbox').prop('checked', true);
+                    }
+                }
+            });
+
+            // --- Check for Missing Users Logic ---
+            $('#check-missing-users-btn').on('click', function() {
+                var $btn = $(this);
+                var $resultContainer = $('#user-check-result');
+                var $createForm = $('#create-users-form');
+
+                $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i> Checking...');
+                $resultContainer.removeClass('hidden').html('<p class="text-gray-500">Checking for missing user profiles...</p>');
+                $createForm.addClass('hidden');
+
+                $.getJSON('@Url.Action("GetMissingChatUsersCount", "Admin")')
+                    .done(function (response) {
+                        if (response.success) {
+                            if (response.count > 0) {
+                                $resultContainer.html(`<p class="text-indigo-700 font-semibold">Found ${response.count} users without a chat profile.</p>`);
+                                $createForm.removeClass('hidden');
+                            } else {
+                                $resultContainer.html('<p class="text-green-700 font-semibold">All users already have a chat profile. No action needed.</p>');
+                            }
+                        } else {
+                            $resultContainer.html(`<p class="text-red-600 font-semibold">Error: ${response.message}</p>`);
+                        }
+                    })
+                    .fail(function() {
+                        $resultContainer.html('<p class="text-red-600 font-semibold">An error occurred while communicating with the server.</p>');
+                    })
+                    .always(function() {
+                        $btn.prop('disabled', false).html('<i class="fas fa-search mr-2"></i> 1. Check for Missing Users');
+                    });
+            });
+
+            // --- Create Missing Users Logic (AJAX) ---
+            $('#create-users-form').on('submit', function(e) {
+                e.preventDefault();
+
+                var $form = $(this);
+                var $btn = $form.find('button[type="submit"]');
+                var $resultContainer = $('#user-check-result');
+                var token = $form.find('input[name="__RequestVerificationToken"]').val();
+
+                $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i> Creating...');
+                $resultContainer.html('<p class="text-gray-500">Creating user profiles, please wait...</p>');
+
+                $.ajax({
+                    url: '@Url.Action("CreateAllChatUsers", "Admin")',
+                    type: 'POST',
+                    data: {
+                        __RequestVerificationToken: token
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            $resultContainer.html(`<p class="text-green-700 font-semibold">${response.message}</p>`);
+                            $form.addClass('hidden');
+                        } else {
+                            $resultContainer.html(`<p class="text-red-600 font-semibold">Error: ${response.message}</p>`);
+                            $btn.prop('disabled', false).html('<i class="fas fa-plus-circle mr-2"></i> 2. Create Missing Chat Users');
+                        }
+                    },
+                    error: function() {
+                        $resultContainer.html('<p class="text-red-600 font-semibold">A critical error occurred. Please try again.</p>');
+                        $btn.prop('disabled', false).html('<i class="fas fa-plus-circle mr-2"></i> 2. Create Missing Chat Users');
+                    }
+                });
+            });
+
+            // --- Initial Create Users Logic (AJAX) ---
+            $('#initial-create-users-form').on('submit', function(e) {
+                e.preventDefault();
+
+                var $form = $(this);
+                var $btn = $form.find('button[type="submit"]');
+                var $resultContainer = $('#initial-user-create-result');
+                var token = $form.find('input[name="__RequestVerificationToken"]').val();
+
+                $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin mr-2"></i> Initializing...');
+                $resultContainer.removeClass('hidden').html('<p class="text-gray-500">Creating all user profiles, this may take a moment...</p>');
+
+                $.ajax({
+                    url: '@Url.Action("CreateAllChatUsers", "Admin")', // Reuses the same efficient controller action
+                    type: 'POST',
+                    data: {
+                        __RequestVerificationToken: token
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            $resultContainer.html(`<p class="text-green-700 font-semibold">${response.message}</p>`);
+                        } else {
+                            $resultContainer.html(`<p class="text-red-600 font-semibold">Error: ${response.message}</p>`);
+                        }
+                    },
+                    error: function() {
+                        $resultContainer.html('<p class="text-red-600 font-semibold">A critical error occurred. Please try again.</p>');
+                    }
+                }).always(function() {
+                    $btn.prop('disabled', false).html('<i class="fas fa-users-cog mr-2"></i> Initialize All Users');
+                });
+            });
+
+
+            // --- Cascading Dropdown Logic ---
+            function populateDropdown(dropdown, data, defaultText) {
+                dropdown.empty().append(`<option value="">-- ${defaultText} --</option>`);
+                if (data && data.length > 0) {
+                    $.each(data, function (i, item) {
+                        dropdown.append($('<option/>', { value: item.id, text: item.name }));
+                    });
+                    dropdown.prop('disabled', false);
+                } else {
+                     dropdown.empty().append(`<option value="">-- No items found --</option>`);
+                }
+            }
+
+            function loadCurriculums(schoolId, form) {
+                var curriculumDropdown = form.find('.casc-curriculum');
+                 if (!curriculumDropdown.length) return;
+
+                curriculumDropdown.empty().append('<option value="">Loading...</option>').prop('disabled', true);
+
+                $.getJSON('@Url.Action("GetCurriculumsForSchool")', { schoolId: schoolId })
+                    .done(function (data) {
+                        populateDropdown(curriculumDropdown, data, 'Select Curriculum');
+                    })
+                    .fail(function() {
+                        console.error("Failed to load curriculums for school ID: " + schoolId);
+                        curriculumDropdown.empty().append('<option value="">-- Error loading items --</option>');
+                    });
+            }
+
+            // 1. When School changes, update Curriculums
+            $(document).on('change', '.casc-school', function () {
+                var schoolId = $(this).val();
+                var form = $(this).closest('form');
+                loadCurriculums(schoolId, form);
+
+                // Reset subsequent dropdowns
+                form.find('.casc-class').prop('disabled', true).empty().append('<option value="">-- Select Curriculum First --</option>');
+                form.find('.casc-section').prop('disabled', true).empty().append('<option value="">-- Select Class First --</option>');
+                form.find('.casc-subject').prop('disabled', true).empty().append('<option value="">-- Select Class First --</option>');
+            });
+
+            // 2. When Curriculum changes, update Classes
+            $(document).on('change', '.casc-curriculum', function () {
+                var curriculumId = $(this).val();
+                var form = $(this).closest('form');
+                var classDropdown = form.find('.casc-class');
+                classDropdown.empty().append('<option value="">Loading...</option>').prop('disabled', true);
+
+                 if (curriculumId) {
+                    $.getJSON('@Url.Action("GetClassesForCurriculum")', { curriculumId: curriculumId }, function (data) {
+                        populateDropdown(classDropdown, data, 'Select Class');
+                    });
+                } else {
+                    classDropdown.empty().append('<option value="">-- Select Curriculum First --</option>');
+                }
+
+                // Reset subsequent dropdowns
+                form.find('.casc-section').prop('disabled', true).empty().append('<option value="">-- Select Class First --</option>');
+                form.find('.casc-subject').prop('disabled', true).empty().append('<option value="">-- Select Class First --</option>');
+            });
+
+            // 3. When Class changes, update Sections AND Subjects
+            $(document).on('change', '.casc-class', function () {
+                var classId = $(this).val();
+                var form = $(this).closest('form');
+                var sectionDropdown = form.find('.casc-section');
+                var subjectDropdown = form.find('.casc-subject');
+
+                sectionDropdown.empty().append('<option value="">Loading...</option>').prop('disabled', true);
+                subjectDropdown.empty().append('<option value="">Loading...</option>').prop('disabled', true);
+
+                if (classId) {
+                    $.getJSON('@Url.Action("GetSectionsForClass")', { classId: classId }, function (data) {
+                        populateDropdown(sectionDropdown, data, 'Select Section');
+                    });
+                    $.getJSON('@Url.Action("GetSubjectsForClass")', { classId: classId }, function (data) {
+                        populateDropdown(subjectDropdown, data, 'Select Subject');
+                    });
+                } else {
+                    sectionDropdown.empty().append('<option value="">-- Select Class First --</option>');
+                    subjectDropdown.empty().append('<option value="">-- Select Class First --</option>');
+                }
+            });
+
+            // For School Admins, auto-load their curriculums on page load
+            var adminSchoolId = @adminSchoolId;
+            if (adminSchoolId > 0) {
+                 setTimeout(function() {
+                     $('form').each(function() {
+                         var form = $(this);
+                         if (form.find('.casc-school').length === 0) {
+                             console.log("School Admin detected. Loading initial curriculums for school ID: " + adminSchoolId);
+                             loadCurriculums(adminSchoolId, form);
+                         }
+                     });
+                 }, 100);
+            }
+        });
+    </script>
+</body>
+</html>
+

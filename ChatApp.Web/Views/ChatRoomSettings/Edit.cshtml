@@ -1,0 +1,202 @@
+﻿@using ChatApp.Web.ViewModels
+@model ChatRoomSettingsViewModel
+@{
+    ViewData["Title"] = "Edit Chat Room Settings";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Smart School Chat</title>
+
+    <!-- Scripts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+
+    <!-- Fonts and Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Custom Styles -->
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.7s ease-out forwards;
+        }
+
+        /* Custom styles for Choices.js to match the new theme */
+        .choices__inner {
+            background-color: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(209, 213, 219, 0.8);
+            color: #374151; /* gray-700 */
+            border-radius: 0.75rem; /* 12px */
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+        }
+
+        .choices[data-type*="select-multiple"] .choices__inner {
+            padding-bottom: 0.25rem;
+        }
+
+        .choices.is-focused .choices__inner {
+            border-color: #3b82f6; /* blue-500 */
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .choices__list--multiple .choices__item {
+            background-color: #3b82f6; /* blue-500 */
+            border: 1px solid #2563eb; /* blue-600 */
+            color: white;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .choices__list--dropdown {
+            background-color: #ffffff;
+            border-color: rgba(209, 213, 219, 0.8);
+            border-radius: 0.75rem;
+            margin-top: 4px;
+        }
+
+        .choices__item--choice {
+            color: #374151;
+        }
+
+            .choices__item--choice.is-highlighted {
+                background-color: #eff6ff; /* blue-50 */
+                color: #1e3a8a;
+            }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4 relative overflow-hidden font-sans">
+
+    <!-- Decorative Background Blobs -->
+    <div class="absolute top-0 -left-4 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse"></div>
+    <div class="absolute top-0 -right-4 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse animation-delay-2000"></div>
+    <div class="absolute bottom-0 -left-20 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-pulse animation-delay-4000"></div>
+
+    <!-- Main Content Card -->
+    <div class="w-full max-w-2xl bg-white/70 backdrop-blur-xl rounded-2xl shadow-2xl z-10 animate-fade-in p-8">
+
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">Room Settings</h1>
+            <p class="text-lg text-blue-600 mt-1">@Model.ChatRoomName</p>
+        </div>
+
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-r-lg" role="alert">
+                <strong class="font-bold">Success!</strong>
+                <span class="block sm:inline">@TempData["SuccessMessage"]</span>
+            </div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded-r-lg" role="alert">
+                <strong class="font-bold">Error!</strong>
+                <span class="block sm:inline">@TempData["ErrorMessage"]</span>
+            </div>
+        }
+
+        <form asp-action="Edit" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="ChatRoomId" />
+            <input type="hidden" asp-for="ChatRoomName" />
+            <div asp-validation-summary="ModelOnly" class="text-red-600 mb-4"></div>
+
+            <!-- Permission Settings -->
+            <div class="mb-8">
+                <h3 class="text-xl font-semibold mb-4 text-gray-800 border-b border-gray-300 pb-2">Permissions</h3>
+                <div class="space-y-4 mt-4">
+                    <div class="flex items-center p-4 bg-white/50 rounded-lg">
+                        <input asp-for="MembersCanSendMessage" type="checkbox" class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 shadow-sm" />
+                        <label asp-for="MembersCanSendMessage" class="ml-3 block font-medium text-gray-700">Members can send messages</label>
+                    </div>
+                    <div class="flex items-center p-4 bg-white/50 rounded-lg">
+                        <input asp-for="MembersCanSendAttachments" type="checkbox" class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 shadow-sm" />
+                        <label asp-for="MembersCanSendAttachments" class="ml-3 block font-medium text-gray-700">Members can send attachments</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Selection -->
+            <div class="mb-8">
+                <h3 class="text-xl font-semibold mb-4 text-gray-800 border-b border-gray-300 pb-2">Room Admins</h3>
+                <div class="mt-4">
+                    <label asp-for="SelectedAdminUsernames" class="block font-medium text-gray-700 mb-2">Select staff to act as admins for this room.</label>
+                    <select asp-for="SelectedAdminUsernames" asp-items="Model.AllStaff" multiple="multiple" id="admin-select" class="w-full"></select>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end space-x-4 mt-10">
+                <a asp-action="Index" asp-controller="Admin" class="px-6 py-2 rounded-lg text-gray-600 hover:bg-gray-200 transition font-semibold">Cancel</a>
+                <button type="submit" class="px-8 py-3 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition-all duration-300 font-semibold shadow-lg hover:shadow-blue-300 transform hover:scale-105">
+                    Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize the multi-select dropdown with Choices.js
+            const adminSelect = new Choices('#admin-select', {
+                removeItemButton: true,
+                placeholder: true,
+                placeholderValue: 'Select admins...',
+                allowHTML: false,
+                classNames: {
+                    containerOuter: 'choices',
+                    containerInner: 'choices__inner',
+                    input: 'choices__input',
+                    inputCloned: 'choices__input--cloned',
+                    list: 'choices__list',
+                    listItems: 'choices__list--multiple',
+                    listSingle: 'choices__list--single',
+                    listDropdown: 'choices__list--dropdown',
+                    item: 'choices__item',
+                    itemSelectable: 'choices__item--selectable',
+                    itemDisabled: 'choices__item--disabled',
+                    itemChoice: 'choices__item--choice',
+                    placeholder: 'choices__placeholder',
+                    group: 'choices__group',
+                    groupHeading: 'choices__heading',
+                    button: 'choices__button',
+                    activeState: 'is-active',
+                    focusState: 'is-focused',
+                    openState: 'is-open',
+                    disabledState: 'is-disabled',
+                    highlightedState: 'is-highlighted',
+                    selectedState: 'is-selected',
+                    flippedState: 'is-flipped',
+                    loadingState: 'is-loading',
+                    noResults: 'has-no-results',
+                    noChoices: 'has-no-choices'
+                },
+            });
+        });
+    </script>
+</body>
+</html>

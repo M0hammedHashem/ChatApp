@@ -1,0 +1,60 @@
+﻿@using ChatApp.Core.IDataService
+@{
+    ViewData["Title"] = "Admin Dashboard";
+    var schools = ViewBag.Schools as IEnumerable<SchoolBranch_DTO> ?? new List<SchoolBranch_DTO>();
+}
+
+<!-- Load Tailwind CSS for styling -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<div class="container mx-auto p-8 font-sans flex items-center justify-center" style="min-height: 70vh;">
+
+    <div class="w-full max-w-lg">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Admin - Create General Chat Room</h1>
+
+        <!-- Display Success/Error Messages -->
+        @if (ViewBag.SuccessMessage != null)
+        {
+            <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-md" role="alert">
+                <p class="font-bold">Success</p>
+                <p>@ViewBag.SuccessMessage</p>
+            </div>
+        }
+        @if (ViewBag.ErrorMessage != null)
+        {
+            <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded-md" role="alert">
+                <p class="font-bold">Error</p>
+                <p>@ViewBag.ErrorMessage</p>
+            </div>
+        }
+
+        <!-- Card for creating a general room per school -->
+        <div class="bg-white p-8 rounded-lg shadow-xl border border-gray-200">
+            <h2 class="text-xl font-semibold mb-4">Create Room for a School</h2>
+            <p class="text-gray-600 mb-6">This will create a single chat room for the selected school and add all its students, staff, and parents.</p>
+            <form asp-action="CreateGeneralRoom" method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="mb-4">
+                    <label for="schoolBranchId" class="block text-sm font-medium text-gray-700">Select School Branch</label>
+                    <select id="schoolBranchId" name="schoolBranchId" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" required>
+                        <option value="">-- Please select a school --</option>
+                        @foreach (var school in schools)
+                        {
+                            <option value="@school.SchoolId">@school.SchoolEnglishName</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="mb-6">
+                    <label for="roomName" class="block text-sm font-medium text-gray-700">New Room Name</label>
+                    <input type="text" id="roomName" name="roomName" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" placeholder="e.g., Main School Announcements" required>
+                </div>
+
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-md transition duration-300 text-lg">
+                    Create General Room
+                </button>
+            </form>
+        </div>
+    </div>
+</div>

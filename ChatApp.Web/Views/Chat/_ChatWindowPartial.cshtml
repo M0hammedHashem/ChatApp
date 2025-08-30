@@ -1,0 +1,95 @@
+﻿@using ChatApp.Web.ViewModels
+@using System.Security.Claims
+@model ChatViewModel
+@{
+    var currentUsername = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    bool canSendMessage = Model.IsCurrentUserRoomAdmin || Model.ActiveRoomSettings.MembersCanSendMessage;
+    bool canSendAttachments = Model.IsCurrentUserRoomAdmin || Model.ActiveRoomSettings.MembersCanSendAttachments;
+}
+
+<!-- Chat Header -->
+<div class="p-4 border-b border-gray-200/80 shadow-sm flex items-center">
+    <div class="flex-shrink-0 h-10 w-10 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center">
+        <span class="text-lg font-bold text-white">@Model.ActiveRoom.EnglishChatRoomName.Substring(0, 1)</span>
+    </div>
+    <div class="ml-3">
+        <h3 class="text-lg font-bold text-gray-800">@Model.ActiveRoom.EnglishChatRoomName</h3>
+        <p class="text-xs text-gray-500 flex items-center"><span class="h-2 w-2 bg-green-400 rounded-full mr-1"></span> Active</p>
+    </div>
+    <div class="flex-grow"></div>
+
+    <form asp-controller="Account" asp-action="Logout" method="post">
+        <button type="submit" class="bg-red-500 text-white font-bold py-2 px-4 rounded-xl hover:bg-red-600 focus:outline-none focus:shadow-outline transition-all duration-300 shadow-lg hover:shadow-red-200 transform hover:scale-105">
+            Logout
+        </button>
+    </form>
+</div>
+
+<!-- Message Container -->
+<div id="message-container" class="flex-1 p-6 overflow-y-auto">
+    <div id="message-list" class="space-y-4">
+        @foreach (var message in Model.Messages)
+        {
+            var isCurrentUser = message.FromUser?.UserName == currentUsername;
+            var alignmentClass = isCurrentUser ? "justify-end" : "justify-start";
+            var bubbleClass = isCurrentUser ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white" : "bg-gray-200/80 text-gray-800";
+            var nameDisplay = isCurrentUser ? "You" : (message.FromUser?.Name ?? "Unknown");
+            var roleDisplay = $"({message.FromUser?.UserType.ToString()})";
+            var time = message.Timestamp.ToLocalTime().ToString("t");
+            <div class="flex @alignmentClass message-item group" data-message-id="@message.Id" data-timestamp-ticks="@message.Timestamp.Ticks">
+                <div class="max-w-md">
+                    <div class="text-xs text-gray-500 mb-1 @(isCurrentUser ? "text-right" : "text-left")">
+                        <strong>@nameDisplay</strong>
+                        <span class="text-gray-400">@roleDisplay</span> - @time
+                    </div>
+                    <div class="relative rounded-lg px-4 py-2 shadow-sm @bubbleClass">
+                        <div class="message-content break-words">
+                            @if (message.MessageType == ChatApp.Core.DbContextManager.MessageType.Image)
+                            {
+                                <img src="@message.AttachmentUrl" alt="User image" class="max-w-xs rounded-lg" />
+                            }
+                            else if (message.MessageType == ChatApp.Core.DbContextManager.MessageType.File)
+                            {
+                                <a href="@message.AttachmentUrl" target="_blank" class="flex items-center p-2 bg-gray-500/20 rounded-lg hover:bg-gray-500/40 text-gray-800">
+                                    <i class="fas fa-file-alt mr-2"></i>
+                                    <span>@message.AttachmentFileName</span>
+                                </a>
+                            }
+                            else
+                            {
+                                <p>@Html.Raw(System.Text.Encodings.Web.HtmlEncoder.Default.Encode(message.Content).Replace("\n", "<br />"))</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Message Input Area -->
+<div class="p-4 bg-white/50 border-t border-gray-200/80 relative">
+    <div id="typing-indicator" class="absolute -top-6 left-6 text-xs text-gray-500 font-medium"></div>
+
+    <emoji-picker class="absolute bottom-20 left-4 hidden z-10 shadow-xl rounded-lg"></emoji-picker>
+
+    <form id="send-message-form" class="flex items-center space-x-3">
+        <input type="hidden" id="room-id-input" value="@Model.ActiveRoom.ChatRoomId" />
+        <input type="hidden" id="current-username" value="@currentUsername" />
+
+        <button type="button" id="emoji-button" class="flex-shrink-0 p-2 text-gray-500 hover:text-blue-600 transition" @(canSendMessage ? "" : "disabled")>
+            <i class="far fa-smile text-2xl"></i>
+        </button>
+
+        <textarea id="message-input"
+                  class="flex-1 p-2 bg-white/80 border border-gray-300 rounded-lg text-gray-800 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none"
+                  placeholder="@(canSendMessage ? "Type a message..." : "Only admins can send messages in this room.")"
+                  rows="1"
+        @(canSendMessage ? "" : "disabled")></textarea>
+
+        <button type="submit" class="flex-shrink-0 px-5 py-2.5 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105" disabled>
+            <i class="fas fa-paper-plane"></i>
+        </button>
+    </form>
+</div>
+

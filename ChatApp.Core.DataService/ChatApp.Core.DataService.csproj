@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ChatApp.Core.DataAccess\ChatApp.Core.DataAccess.csproj" />
+    <ProjectReference Include="..\ChatApp.Core.IDataAccess\ChatApp.Core.IDataAccess.csproj" />
+    <ProjectReference Include="..\ChatApp.Core.IDataService\ChatApp.Core.IDataService.csproj" />
+  </ItemGroup>
+
+</Project>
